@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startup Hackathon - Caesar Ian Samulde</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .event-hero {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            color: white;
+            padding-top: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        
+        .event-hero .container {
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        
+        .glass-button {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 600;
+            padding: 15px 40px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+        
+        .audio-toggle {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .audio-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .audio-toggle.muted {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: rgba(220, 53, 69, 0.8);
+        }
+        
+        .event-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        
+        .event-hero .lead {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+        }
+        
+        .event-info-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: -80px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .event-info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .event-info-item i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-right: 1rem;
+            width: 50px;
+            text-align: center;
+        }
+        
+        .feature-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+        
+        .feature-box i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .rsvp-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+        }
+        
+        .rsvp-form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            color: #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .rsvp-form-container h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        .object-fit-cover {
+            object-fit: cover;
+        }
+        
+        .shadow-lg {
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+        
+        @media (max-width: 768px) {
+            .event-hero h1 {
+                font-size: 2.5rem;
+            }
+            .event-hero .lead {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <img src="img/logo.svg" alt="Portfolio Logo" class="navbar-logo me-2">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#portfolio">Portfolio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="event.html">Event</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="event-hero">
+        <video autoplay loop playsinline class="video-background" id="heroVideo">
+            <source src="img/main_background.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        
+        <!-- Audio Toggle Button -->
+        <button class="audio-toggle" id="audioToggle" aria-label="Toggle audio">
+            <i class="fas fa-volume-up" id="audioIcon"></i>
+        </button>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1>Startup Hackathon</h1>
+                    <p class="lead">
+                        Build innovative solutions, collaborate with talented developers and designers, and compete for amazing prizes. 
+                        Join us for 48 hours of coding, creativity, and breakthrough ideas.
+                    </p>
+                    <a href="#rsvp" class="btn glass-button btn-lg px-5">Reserve Your Spot</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Info Card -->
+    <section class="py-5">
+        <div class="container">
+            <div class="event-info-card">
+                <div class="row">
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="event-info-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Date</h6>
+                                <p class="mb-0">November 15-17, 2025</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="event-info-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Time</h6>
+                                <p class="mb-0">6:00 PM - 9:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="event-info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Location</h6>
+                                <p class="mb-0">Innovation Hub, Davao City</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="event-info-item">
+                            <i class="fas fa-ticket-alt"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Entry</h6>
+                                <p class="mb-0">Free (Registration Required)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Event Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="section-title mb-3">About the Hackathon</h2>
+                    <p class="lead">
+                        This intensive 48-hour hackathon brings together developers, designers, and entrepreneurs to build 
+                        innovative solutions that address real-world problems. Whether you're a seasoned coder, a creative designer, 
+                        or a startup enthusiast, join us to prototype groundbreaking ideas, learn new technologies, and compete for 
+                        exciting prizes while networking with industry experts.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-box">
+                        <i class="fas fa-code"></i>
+                        <h5>Build</h5>
+                        <p>Develop innovative prototypes and solutions using cutting-edge technologies in 48 hours.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <h5>Innovate</h5>
+                        <p>Turn creative ideas into working products with guidance from mentors and industry experts.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-box">
+                        <i class="fas fa-users"></i>
+                        <h5>Collaborate</h5>
+                        <p>Work with talented developers, designers, and entrepreneurs to bring ideas to life.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-box">
+                        <i class="fas fa-trophy"></i>
+                        <h5>Win Prizes</h5>
+                        <p>Compete for cash prizes, startup resources, and opportunities to pitch to investors.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Gallery Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="position-relative overflow-hidden rounded-3 shadow-lg" style="height: 300px;">
+                        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80" 
+                             alt="Startup Team Collaboration" 
+                             class="w-100 h-100 object-fit-cover">
+                        <div class="position-absolute bottom-0 start-0 end-0 p-3 text-white" 
+                             style="background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+                            <h5 class="mb-0">Code & Collaborate</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="position-relative overflow-hidden rounded-3 shadow-lg" style="height: 300px;">
+                        <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&q=80" 
+                             alt="Startup Innovation" 
+                             class="w-100 h-100 object-fit-cover">
+                        <div class="position-absolute bottom-0 start-0 end-0 p-3 text-white" 
+                             style="background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+                            <h5 class="mb-0">Build & Innovate</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agenda Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="section-title mb-3">Hackathon Schedule</h2>
+                    <p>48 hours of intensive coding, mentorship, and innovation.</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="bg-white rounded-3 shadow-sm p-4">
+                    <div class="timeline">
+                        <h6 class="text-primary mb-3"><strong>Day 1 - November 15, 2025</strong></h6>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">6:00 PM</div>
+                            <div>
+                                <h5>Registration & Team Formation</h5>
+                                <p class="text-muted">Check-in, meet participants, and form teams (1-5 members).</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">7:00 PM</div>
+                            <div>
+                                <h5>Opening Ceremony & Theme Reveal</h5>
+                                <p class="text-muted">Welcome address, rules explanation, and hackathon theme announcement.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">8:00 PM</div>
+                            <div>
+                                <h5>Hacking Begins!</h5>
+                                <p class="text-muted">Start building your projects. Mentors available for guidance.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">12:00 AM</div>
+                            <div>
+                                <h5>Midnight Snacks & Networking</h5>
+                                <p class="text-muted">Take a break, grab food, and connect with other teams.</p>
+                            </div>
+                        </div>
+                        <h6 class="text-primary mb-3 mt-4"><strong>Day 2 - November 16, 2025</strong></h6>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">9:00 AM</div>
+                            <div>
+                                <h5>Breakfast & Tech Workshops</h5>
+                                <p class="text-muted">Optional workshops on APIs, cloud services, and development tools.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">3:00 PM</div>
+                            <div>
+                                <h5>Final Sprint & Mentor Check-ins</h5>
+                                <p class="text-muted">Last-minute coding and preparation for presentations.</p>
+                            </div>
+                        </div>
+                        <h6 class="text-primary mb-3 mt-4"><strong>Day 3 - November 17, 2025</strong></h6>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">9:00 AM</div>
+                            <div>
+                                <h5>Hacking Ends - Submissions Due</h5>
+                                <p class="text-muted">Final code submissions and demo video uploads.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">10:00 AM</div>
+                            <div>
+                                <h5>Project Presentations & Judging</h5>
+                                <p class="text-muted">Teams present their projects to judges (5 minutes each).</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">1:00 PM</div>
+                            <div>
+                                <h5>Awards Ceremony & Closing</h5>
+                                <p class="text-muted">Winner announcements, prize distribution, and group photo!</p>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="me-4 text-primary fw-bold" style="min-width: 120px;">2:00 PM</div>
+                            <div>
+                                <h5>Networking & Wrap-up</h5>
+                                <p class="text-muted">Connect with sponsors, mentors, and fellow participants.</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RSVP Section -->
+    <section id="rsvp" class="rsvp-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="rsvp-form-container">
+                        <h2 class="text-center">Register for the Hackathon</h2>
+                        <p class="text-center text-muted mb-4">
+                            Limited spots available. Register now to secure your place and join the innovation!
+                        </p>
+                        
+                        <form id="rsvpForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="rsvpName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="rsvpName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="rsvpEmail" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="rsvpEmail" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="rsvpCompany" class="form-label">Company</label>
+                                    <input type="text" class="form-control" id="rsvpCompany">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="rsvpRole" class="form-label">Role</label>
+                                    <input type="text" class="form-control" id="rsvpRole" placeholder="e.g., Founder, Developer, Investor">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="rsvpAttend" class="form-label">Will you attend? <span class="text-danger">*</span></label>
+                                <select id="rsvpAttend" class="form-select" required>
+                                    <option value="">Select...</option>
+                                    <option value="yes">Yes, I'll be there!</option>
+                                    <option value="no">No, I can't make it</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="rsvpMessage" class="form-label">Message (Optional)</label>
+                                <textarea id="rsvpMessage" class="form-control" rows="3" placeholder="Any questions or special requirements?"></textarea>
+                            </div>
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-check me-2"></i>Submit RSVP
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                     <p class="mb-0">&copy; 2024 Caesar Ian Samulde. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="social-links">
+                        <a href="#" class="social-link me-3"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link me-3"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <script>
+        // Audio toggle functionality
+        (function() {
+            const video = document.getElementById('heroVideo');
+            const toggleBtn = document.getElementById('audioToggle');
+            const audioIcon = document.getElementById('audioIcon');
+            
+            if (video && toggleBtn && audioIcon) {
+                // Start with audio playing
+                video.muted = false;
+                video.volume = 0.7; // Set volume to 70%
+                
+                toggleBtn.addEventListener('click', function() {
+                    if (video.muted) {
+                        video.muted = false;
+                        audioIcon.className = 'fas fa-volume-up';
+                        toggleBtn.classList.remove('muted');
+                    } else {
+                        video.muted = true;
+                        audioIcon.className = 'fas fa-volume-mute';
+                        toggleBtn.classList.add('muted');
+                    }
+                });
+                
+                // Handle autoplay restrictions
+                video.play().catch(function(error) {
+                    console.log('Autoplay with audio failed, starting muted:', error);
+                    video.muted = true;
+                    audioIcon.className = 'fas fa-volume-mute';
+                    toggleBtn.classList.add('muted');
+                });
+            }
+        })();
+        
+        // RSVP handling
+        (function() {
+            const form = document.getElementById('rsvpForm');
+
+            if (!form) return;
+
+            // Security: Basic domain validation
+            function validateDomain() {
+                const allowedDomains = ['localhost', '127.0.0.1', 'caesarsamulde.com', 'your-domain.com'];
+                const currentDomain = window.location.hostname;
+                return allowedDomains.some(domain => currentDomain.includes(domain));
+            }
+
+            // Obfuscated EmailJS configuration (basic security through obscurity)
+            const emailConfig = {
+                // Current values encoded in base64 (replace these with your encoded values)
+                pk: 'bGJmcHRhSWNvTjRCTk1nWk8=', // Base64 encoded current public key
+                sid: 'c2VydmljZV9vMDk4Mms0', // Base64 encoded current service ID
+                tid: 'dGVtcGxhdGVfaTF1b2Q3Nw==' // Base64 encoded current template ID
+            };
+
+            // Decode configuration
+            function getEmailConfig() {
+                if (!validateDomain()) {
+                    console.error('Unauthorized domain access');
+                    return null;
+                }
+                
+                return {
+                    publicKey: atob(emailConfig.pk),
+                    serviceId: atob(emailConfig.sid),
+                    templateId: atob(emailConfig.tid)
+                };
+            }
+
+            // Initialize EmailJS with domain validation
+            const config = getEmailConfig();
+            if (config) {
+                emailjs.init(config.publicKey);
+            }
+
+            function loadRsvps() {
+                try {
+                    return JSON.parse(localStorage.getItem('rsvps') || '[]');
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            function saveRsvps(list) {
+                localStorage.setItem('rsvps', JSON.stringify(list));
+            }
+
+            function showAlert(message, type = 'success') {
+                // Create alert at top of RSVP section
+                const rsvpSection = document.getElementById('rsvp');
+                const existingAlert = rsvpSection.querySelector('.alert');
+                if (existingAlert) existingAlert.remove();
+
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} alert-dismissible fade show mb-4`;
+                alert.role = 'alert';
+                alert.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+                
+                const container = rsvpSection.querySelector('.container');
+                container.insertBefore(alert, container.firstChild);
+                
+                // Scroll to alert
+                alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                setTimeout(() => {
+                    try { 
+                        bootstrap.Alert.getOrCreateInstance(alert).close(); 
+                    } catch (e) { 
+                        alert.remove(); 
+                    }
+                }, 5000);
+            }
+
+            function sendConfirmationEmail(data) {
+                // Only send email if they're attending
+                if (data.attend !== 'yes') {
+                    return Promise.resolve({ status: 'skipped', message: 'Not attending' });
+                }
+
+                // Validate access and get configuration
+                if (!config) {
+                    return Promise.reject(new Error('Email service unavailable'));
+                }
+
+                const serviceID = config.serviceId;
+                const templateID = config.templateId;
+
+                // Prepare email parameters
+                const emailParams = {
+                    to_name: data.name,
+                    to_email: data.email,
+                    user_name: data.name,
+                    user_email: data.email,
+                    user_company: data.company || 'N/A',
+                    user_role: data.role || 'N/A',
+                    event_name: 'Startup Hackathon',
+                    event_date: 'November 15-17, 2025',
+                    event_time: '48 Hours (Nov 15 6PM - Nov 17 2PM)',
+                    event_location: 'Innovation Hub, Davao City',
+                    event_address: 'Innovation Hub Building, J.P. Laurel Ave, Davao City, 8000',
+                    organizer_name: 'Caesar Ian Samulde',
+                    organizer_email: 'caesarsamulde@gmail.com',
+                    organizer_phone: '+639518023980'
+                };
+
+                return emailjs.send(serviceID, templateID, emailParams)
+                    .then((response) => {
+                        console.log('Email sent successfully!', response.status, response.text);
+                        return { status: 'success', response };
+                    })
+                    .catch((error) => {
+                        console.error('Email sending failed:', error);
+                        return { status: 'error', error };
+                    });
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                
+                // Disable button and show loading
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+                const data = {
+                    name: document.getElementById('rsvpName').value.trim(),
+                    email: document.getElementById('rsvpEmail').value.trim().toLowerCase(),
+                    company: document.getElementById('rsvpCompany').value.trim(),
+                    role: document.getElementById('rsvpRole').value.trim(),
+                    attend: document.getElementById('rsvpAttend').value,
+                    message: document.getElementById('rsvpMessage').value.trim(),
+                    timestamp: new Date().toISOString()
+                };
+
+                if (!data.name || !data.email || !data.attend) {
+                    showAlert('<strong>Oops!</strong> Please complete all required fields (Name, Email, and Attendance).', 'warning');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    return;
+                }
+
+                const rsvps = loadRsvps();
+
+                // prevent duplicate RSVP by email
+                const existing = rsvps.find(r => r.email === data.email);
+                if (existing) {
+                    showAlert('<strong>Already registered!</strong> You have already submitted an RSVP with this email. Thank you!', 'info');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    return;
+                }
+
+                // Send confirmation email automatically
+                sendConfirmationEmail(data)
+                    .then((result) => {
+                        // Add email status to data
+                        data.emailSent = result.status === 'success';
+                        data.emailSentAt = result.status === 'success' ? new Date().toISOString() : null;
+                        
+                        // Save RSVP with email status
+                        rsvps.push(data);
+                        saveRsvps(rsvps);
+
+                        let message = '<strong>Success!</strong> Your RSVP has been recorded.';
+                        
+                        if (data.attend === 'yes') {
+                            if (result.status === 'success') {
+                                message += ' A confirmation email has been sent to <strong>' + data.email + '</strong>. We look forward to seeing you at the event!';
+                            } else if (result.status === 'error') {
+                                message += ' However, we couldn\'t send the confirmation email. Please check your email address or contact us directly.';
+                            }
+                        } else {
+                            message += ' Thank you for letting us know.';
+                        }
+
+                        showAlert(message, 'success');
+                        form.reset();
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        showAlert('<strong>Error!</strong> Something went wrong. Please try again or contact us directly.', 'danger');
+                    })
+                    .finally(() => {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                    });
+            });
+        })();
+    </script>
+</body>
+</html>
