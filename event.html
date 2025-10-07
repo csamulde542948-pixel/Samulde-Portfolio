@@ -860,7 +860,47 @@
 
             function saveRsvps(list) {
                 localStorage.setItem('rsvps', JSON.stringify(list));
+                // Broadcast RSVP data change to admin dashboard
+                broadcastRSVPUpdate(list);
             }
+
+            // Cross-domain data sharing for admin dashboard
+            function broadcastRSVPUpdate(rsvpData) {
+                const message = {
+                    type: 'RSVP_DATA_UPDATE',
+                    data: rsvpData || loadRsvps(),
+                    timestamp: Date.now()
+                };
+                
+                // Broadcast to all windows (including admin dashboard)
+                if (window.BroadcastChannel) {
+                    const channel = new BroadcastChannel('rsvp_data');
+                    channel.postMessage(message);
+                }
+            }
+
+            // Listen for data requests from admin dashboard
+            window.addEventListener('message', function(event) {
+                // Verify origin for security (allow admin subdomain)
+                const allowedOrigins = [
+                    'https://admin.caesariansamulde.dev',
+                    'https://caesariansamulde.dev',
+                    'http://localhost:3000',
+                    'http://localhost:8000',
+                    'http://localhost:8001'
+                ];
+                
+                if (allowedOrigins.some(origin => event.origin.includes(origin.split('://')[1]))) {
+                    if (event.data.type === 'REQUEST_RSVP_DATA') {
+                        const rsvpData = loadRsvps();
+                        event.source.postMessage({
+                            type: 'RSVP_DATA_RESPONSE',
+                            data: rsvpData,
+                            timestamp: Date.now()
+                        }, event.origin);
+                    }
+                }
+            });
 
             function showAlert(message, type = 'success') {
                 // Create alert at top of RSVP section
