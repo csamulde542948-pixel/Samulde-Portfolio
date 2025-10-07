@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://caesariansamulde.com/sitemap.xml
+Sitemap: https://caesariansamulde.dev/sitemap.xml
 
 # Disallow admin areas
 Disallow: /admin.html
