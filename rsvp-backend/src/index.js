@@ -4,7 +4,7 @@ export default {
     // CORS headers for cross-origin requests
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
 
@@ -31,6 +31,18 @@ export default {
     // Route: GET /api/stats - Get RSVP statistics
     if (url.pathname === '/api/stats' && request.method === 'GET') {
       return handleGetStats(request, env, corsHeaders);
+    }
+    
+    // Route: DELETE /api/rsvp/:id - Delete single RSVP by ID
+    const deleteRsvpMatch = url.pathname.match(/^\/api\/rsvp\/(\d+)$/);
+    if (deleteRsvpMatch && request.method === 'DELETE') {
+      const id = deleteRsvpMatch[1];
+      return handleDeleteRSVP(id, env, corsHeaders);
+    }
+    
+    // Route: DELETE /api/rsvps - Delete all RSVPs (admin only)
+    if (url.pathname === '/api/rsvps' && request.method === 'DELETE') {
+      return handleDeleteAllRSVPs(request, env, corsHeaders);
     }
     
     return new Response('API endpoint not found', { 
@@ -160,6 +172,109 @@ async function handleGetStats(request, env, corsHeaders) {
     return new Response(JSON.stringify({
       success: false,
       error: 'Failed to retrieve statistics',
+      details: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Delete single RSVP by ID
+async function handleDeleteRSVP(id, env, corsHeaders) {
+  try {
+    // Convert ID to integer
+    const rsvpId = parseInt(id, 10);
+    if (isNaN(rsvpId)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid RSVP ID'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // First check if RSVP exists
+    const existing = await env.DB.prepare('SELECT id, name, email FROM rsvps WHERE id = ?').bind(rsvpId).first();
+    
+    if (!existing) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'RSVP not found'
+      }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Delete the RSVP
+    const result = await env.DB.prepare('DELETE FROM rsvps WHERE id = ?').bind(rsvpId).run();
+    
+    // Check if deletion was successful
+    console.log('Delete operation result:', result);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: `RSVP for ${existing.name} (${existing.email}) deleted successfully`,
+      deletedId: rsvpId,
+      changes: result.changes || 0
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('Delete RSVP error:', error);
+    
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Failed to delete RSVP',
+      details: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Delete all RSVPs (admin function)
+async function handleDeleteAllRSVPs(request, env, corsHeaders) {
+  try {
+    // Get confirmation from request body or query parameter
+    const url = new URL(request.url);
+    const confirm = url.searchParams.get('confirm');
+    
+    if (confirm !== 'true') {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Confirmation required. Add ?confirm=true to delete all RSVPs.'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Count RSVPs before deletion
+    const countResult = await env.DB.prepare('SELECT COUNT(*) as count FROM rsvps').first();
+    const totalCount = countResult.count;
+
+    // Delete all RSVPs
+    const result = await env.DB.prepare('DELETE FROM rsvps').run();
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: `All ${totalCount} RSVPs deleted successfully`,
+      deletedCount: result.changes
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('Delete all RSVPs error:', error);
+    
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Failed to delete all RSVPs',
       details: error.message
     }), {
       status: 500,
