@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event RSVP Admin Dashboard</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card.total {
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card.attending {
+            border-left: 4px solid #28a745;
+        }
+        
+        .stat-card.not-attending {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .stat-card.recent {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .rsvp-table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .table-actions {
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box {
+            max-width: 300px;
+        }
+        
+        .badge-attending {
+            background: #28a745;
+        }
+        
+        .badge-not-attending {
+            background: #dc3545;
+        }
+        
+        .btn-export {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .btn-export:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1><i class="fas fa-chart-line me-2"></i>RSVP Dashboard</h1>
+                    <p class="mb-0">Startup Hackathon - Admin Panel</p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <a href="https://caesariansamulde.dev" class="btn btn-light me-2">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                    <a href="https://caesariansamulde.dev/event.html" class="btn btn-outline-light">
+                        <i class="fas fa-calendar me-1"></i>Event Page
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="container mb-4">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card total">
+                    <i class="fas fa-users text-primary"></i>
+                    <h3 id="totalRsvps">0</h3>
+                    <p class="text-muted mb-0">Total RSVPs</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card attending">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <h3 id="attendingCount">0</h3>
+                    <p class="text-muted mb-0">Attending</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card not-attending">
+                    <i class="fas fa-times-circle text-danger"></i>
+                    <h3 id="notAttendingCount">0</h3>
+                    <p class="text-muted mb-0">Not Attending</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card recent">
+                    <i class="fas fa-clock text-warning"></i>
+                    <h3 id="recentCount">0</h3>
+                    <p class="text-muted mb-0">Last 24 Hours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RSVP Table -->
+    <div class="container mb-5">
+        <div class="rsvp-table-container">
+            <div class="table-actions d-flex flex-wrap justify-content-between align-items-center">
+                <div class="mb-3 mb-md-0">
+                    <h4 class="mb-0"><i class="fas fa-list me-2"></i>All RSVPs</h4>
+                    <small class="text-muted">
+                        Email Status: 
+                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Sent</span>
+                        <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Failed</span>
+                        <span class="badge bg-secondary"><i class="fas fa-question-circle"></i> Unknown</span>
+                    </small>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <input type="text" id="searchBox" class="form-control search-box" placeholder="Search...">
+                    <select id="filterAttendance" class="form-select" style="max-width: 200px;">
+                        <option value="all">All Attendance</option>
+                        <option value="yes">Attending</option>
+                        <option value="no">Not Attending</option>
+                    </select>
+                    <select id="filterEmailStatus" class="form-select" style="max-width: 200px;">
+                        <option value="all">All Email Status</option>
+                        <option value="sent">Email Sent</option>
+                        <option value="failed">Email Failed</option>
+                        <option value="pending">No Email</option>
+                    </select>
+                    <button class="btn btn-success" onclick="showBulkEmailModal()">
+                        <i class="fas fa-envelope me-1"></i>Send All Emails
+                    </button>
+                    <button class="btn btn-export" onclick="exportToCSV()">
+                        <i class="fas fa-download me-1"></i>Export CSV
+                    </button>
+                    <button class="btn btn-danger" onclick="clearAllRSVPs()">
+                        <i class="fas fa-trash me-1"></i>Clear All
+                    </button>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state d-none">
+                <i class="fas fa-inbox"></i>
+                <h4>No RSVPs Yet</h4>
+                <p>RSVPs will appear here once people start registering for the event.</p>
+                <a href="https://caesariansamulde.dev/event.html" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Go to Event Page
+                </a>
+            </div>
+
+            <div id="tableContainer">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Company</th>
+                                <th>Role</th>
+                                <th>Attending</th>
+                                <th>Email Sent</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rsvpTableBody">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noResults" class="text-center py-4 d-none">
+                    <p class="text-muted">No results found matching your search.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Preview Modal -->
+    <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailModalLabel">
+                        <i class="fas fa-envelope me-2"></i>Email Preview
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Copy this email content and send it manually via your email client, or use the "mailto" link to open in your default email app.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">To:</label>
+                        <input type="text" id="emailTo" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Subject:</label>
+                        <input type="text" id="emailSubject" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Message:</label>
+                        <div id="emailPreview" class="border rounded p-3" style="background: #f8f9fa; max-height: 400px; overflow-y: auto;">
+                            <!-- Email content will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-info" onclick="copyEmailToClipboard()">
+                        <i class="fas fa-copy me-1"></i>Copy to Clipboard
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="openInEmailClient()">
+                        <i class="fas fa-external-link-alt me-1"></i>Open in Email Client
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let allRsvps = [];
+        let filteredRsvps = [];
+
+        // SQLite API Configuration
+        const API_BASE_URL = 'https://rsvp-backend.caesarian.workers.dev';
+
+        // Load RSVPs from SQLite database
+        async function loadRsvps() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/rsvps`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                allRsvps = result.data || [];
+                
+                // Fallback to localStorage if no data in database
+                if (allRsvps.length === 0) {
+                    const localData = JSON.parse(localStorage.getItem('rsvps') || '[]');
+                    if (localData.length > 0) {
+                        allRsvps = localData;
+                        console.log('Using local data as fallback');
+                    }
+                }
+                
+                filteredRsvps = [...allRsvps];
+                updateStats();
+                renderTable();
+                showDataSourceInfo();
+            } catch (e) {
+                console.error('Error loading RSVPs from database:', e);
+                // Fallback to localStorage
+                try {
+                    allRsvps = JSON.parse(localStorage.getItem('rsvps') || '[]');
+                    filteredRsvps = [...allRsvps];
+                    updateStats();
+                    renderTable();
+                    showDataSourceWarning();
+                } catch (localError) {
+                    console.error('Error loading from localStorage:', localError);
+                    allRsvps = [];
+                    filteredRsvps = [];
+                    showDataSourceError();
+                }
+            }
+        }
+
+        function showDataSourceInfo() {
+            if (allRsvps.length === 0) {
+                const emptyState = document.getElementById('emptyState');
+                if (emptyState) {
+                    emptyState.innerHTML = `
+                        <i class="fas fa-info-circle text-primary mb-3" style="font-size: 3rem;"></i>
+                        <h4>Admin Dashboard Ready</h4>
+                        <p class="mb-3">This dashboard displays RSVPs from your secure SQLite database.</p>
+                        <div class="alert alert-info">
+                            <strong>Database Status:</strong> Connected to SQLite database via Cloudflare Workers. 
+                            RSVPs are stored securely and sync across all devices.
+                        </div>
+                        <a href="https://caesariansamulde.dev/event.html" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Go to Event Page
+                        </a>
+                    `;
+                }
+            }
+        }
+
+        function showDataSourceWarning() {
+            console.warn('Database connection failed - using local data as fallback');
+            const emptyState = document.getElementById('emptyState');
+            if (emptyState && allRsvps.length === 0) {
+                emptyState.innerHTML = `
+                    <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                    <h4>Database Connection Issue</h4>
+                    <p class="mb-3">Using local fallback data. Database sync will resume when connection is restored.</p>
+                    <div class="alert alert-warning">
+                        <strong>Status:</strong> Connected to local storage only. 
+                        Some RSVPs may not be visible if submitted from other devices.
+                    </div>
+                `;
+            }
+        }
+
+        function showDataSourceError() {
+            const emptyState = document.getElementById('emptyState');
+            if (emptyState) {
+                emptyState.innerHTML = `
+                    <i class="fas fa-times-circle text-danger mb-3" style="font-size: 3rem;"></i>
+                    <h4>Data Connection Error</h4>
+                    <p class="mb-3">Unable to load RSVP data from database or local storage.</p>
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> Please refresh the page or contact support if the issue persists.
+                    </div>
+                    <button class="btn btn-primary" onclick="loadRsvps()">
+                        <i class="fas fa-refresh me-1"></i>Retry Connection
+                    </button>
+                `;
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = allRsvps.length;
+            const attending = allRsvps.filter(r => r.attend === 'yes').length;
+            const notAttending = allRsvps.filter(r => r.attend === 'no').length;
+            
+            // Count RSVPs in last 24 hours
+            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const recent = allRsvps.filter(r => new Date(r.timestamp) > oneDayAgo).length;
+            
+            // Count emails sent (only for attending)
+            const attendingRsvps = allRsvps.filter(r => r.attend === 'yes');
+            const emailsSent = attendingRsvps.filter(r => r.emailSent === true).length;
+
+            document.getElementById('totalRsvps').textContent = total;
+            document.getElementById('attendingCount').textContent = attending;
+            document.getElementById('notAttendingCount').textContent = notAttending;
+            document.getElementById('recentCount').textContent = recent;
+            
+            // Update recent count text to show email stats
+            const recentCard = document.querySelector('.stat-card.recent p');
+            if (recentCard && attendingRsvps.length > 0) {
+                recentCard.innerHTML = `Last 24 Hours<br><small class="text-muted" style="font-size: 0.75rem;">Emails: ${emailsSent}/${attendingRsvps.length} sent</small>`;
+            }
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('rsvpTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const tableContainer = document.getElementById('tableContainer');
+            const noResults = document.getElementById('noResults');
+
+            if (allRsvps.length === 0) {
+                emptyState.classList.remove('d-none');
+                tableContainer.classList.add('d-none');
+                return;
+            } else {
+                emptyState.classList.add('d-none');
+                tableContainer.classList.remove('d-none');
+            }
+
+            if (filteredRsvps.length === 0) {
+                tbody.innerHTML = '';
+                noResults.classList.remove('d-none');
+                return;
+            } else {
+                noResults.classList.add('d-none');
+            }
+
+            tbody.innerHTML = filteredRsvps.map((rsvp, index) => {
+                const date = new Date(rsvp.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                const attendBadge = rsvp.attend === 'yes' 
+                    ? '<span class="badge badge-attending">Yes</span>' 
+                    : '<span class="badge badge-not-attending">No</span>';
+                
+                // Email status indicator
+                let emailStatus = '-';
+                if (rsvp.attend === 'yes') {
+                    if (rsvp.emailSent) {
+                        const emailDate = rsvp.emailSentAt ? new Date(rsvp.emailSentAt).toLocaleString() : '';
+                        emailStatus = `<span class="badge bg-success" title="Email sent at ${emailDate}"><i class="fas fa-check-circle me-1"></i>Sent</span>`;
+                    } else if (rsvp.emailSent === false) {
+                        emailStatus = '<span class="badge bg-danger" title="Email failed to send"><i class="fas fa-times-circle me-1"></i>Failed</span>';
+                    } else {
+                        emailStatus = '<span class="badge bg-secondary" title="Status unknown (old RSVP)"><i class="fas fa-question-circle me-1"></i>Unknown</span>';
+                    }
+                } else {
+                    emailStatus = '<span class="badge bg-secondary" title="Not attending - no email sent">N/A</span>';
+                }
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${rsvp.name}</strong></td>
+                        <td>${rsvp.email}</td>
+                        <td>${rsvp.company || '-'}</td>
+                        <td>${rsvp.role || '-'}</td>
+                        <td>${attendBadge}</td>
+                        <td>${emailStatus}</td>
+                        <td>${rsvp.message ? `<span title="${rsvp.message}"><i class="fas fa-comment"></i></span>` : '-'}</td>
+                        <td><small>${formattedDate}</small></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" onclick="showEmailPreview('${rsvp.email}')" title="Send Email">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteRsvp('${rsvp.email}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            applyFilters(searchTerm);
+        });
+
+        // Filter by attendance
+        document.getElementById('filterAttendance').addEventListener('change', function(e) {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            applyFilters(searchTerm);
+        });
+
+        // Filter by email status
+        document.getElementById('filterEmailStatus').addEventListener('change', function(e) {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            applyFilters(searchTerm);
+        });
+
+        // Apply filters
+        function applyFilters(searchTerm = '') {
+            const attendanceFilter = document.getElementById('filterAttendance').value;
+            const emailFilter = document.getElementById('filterEmailStatus').value;
+            
+            filteredRsvps = allRsvps.filter(rsvp => {
+                const matchesSearch = !searchTerm || 
+                    rsvp.name.toLowerCase().includes(searchTerm) ||
+                    rsvp.email.toLowerCase().includes(searchTerm) ||
+                    (rsvp.company && rsvp.company.toLowerCase().includes(searchTerm)) ||
+                    (rsvp.role && rsvp.role.toLowerCase().includes(searchTerm));
+                
+                const matchesAttendance = attendanceFilter === 'all' || rsvp.attend === attendanceFilter;
+                
+                let matchesEmail = true;
+                if (emailFilter !== 'all') {
+                    if (emailFilter === 'sent') {
+                        matchesEmail = rsvp.emailSent === true;
+                    } else if (emailFilter === 'failed') {
+                        matchesEmail = rsvp.emailSent === false;
+                    } else if (emailFilter === 'pending') {
+                        matchesEmail = rsvp.attend === 'yes' && (rsvp.emailSent === undefined || rsvp.emailSent === null);
+                    }
+                }
+                
+                return matchesSearch && matchesAttendance && matchesEmail;
+            });
+            
+            renderTable();
+        }
+
+        // Delete single RSVP - Database operations (read-only admin panel)
+        function deleteRsvp(email) {
+            alert('Delete functionality is disabled for security. This admin panel is read-only.\n\nTo manage RSVPs, please contact the system administrator.');
+        }
+
+        // Clear all RSVPs - Database operations (read-only admin panel)
+        function clearAllRSVPs() {
+            alert('Bulk delete functionality is disabled for security. This admin panel is read-only.\n\nTo manage RSVPs, please contact the system administrator.');
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (allRsvps.length === 0) {
+                alert('No RSVPs to export!');
+                return;
+            }
+
+            const headers = ['Name', 'Email', 'Company', 'Role', 'Attending', 'Email Sent', 'Email Sent At', 'Message', 'Timestamp'];
+            const csvContent = [
+                headers.join(','),
+                ...allRsvps.map(rsvp => {
+                    const emailStatus = rsvp.emailSent === true ? 'Yes' : rsvp.emailSent === false ? 'Failed' : 'N/A';
+                    const emailSentAt = rsvp.emailSentAt || '';
+                    return [
+                        `"${rsvp.name}"`,
+                        `"${rsvp.email}"`,
+                        `"${rsvp.company || ''}"`,
+                        `"${rsvp.role || ''}"`,
+                        rsvp.attend === 'yes' ? 'Yes' : 'No',
+                        emailStatus,
+                        `"${emailSentAt}"`,
+                        `"${(rsvp.message || '').replace(/"/g, '""')}"`,
+                        `"${rsvp.timestamp}"`
+                    ].join(',');
+                })
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `event-rsvps-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Email template generation
+        let currentEmailData = {};
+
+        function generateEmailContent(rsvp) {
+            const eventDate = 'November 15, 2025';
+            const eventTime = '6:00 PM - 9:00 PM';
+            const eventLocation = 'Innovation Hub, Davao City';
+            const eventAddress = 'Innovation Hub Building, J.P. Laurel Ave, Davao City, 8000';
+            
+            return {
+                subject: 'Confirmation: Networking Event for Startups - November 15, 2025',
+                body: `Dear ${rsvp.name},
+
+Thank you for registering for our Networking Event for Startups!
+
+We're excited to confirm your attendance. Here are the event details:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EVENT DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📅 Date: ${eventDate}
+🕐 Time: ${eventTime}
+📍 Location: ${eventLocation}
+🗺️  Address: ${eventAddress}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT TO EXPECT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ Opening Keynote by a successful startup founder
+💡 Panel Discussion on funding strategies
+🤝 Structured networking activities
+🚀 Startup Showcase presentations
+🍷 Refreshments and drinks throughout the evening
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR REGISTRATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Name: ${rsvp.name}
+Email: ${rsvp.email}
+${rsvp.company ? `Company: ${rsvp.company}` : ''}
+${rsvp.role ? `Role: ${rsvp.role}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPORTANT REMINDERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Please arrive 15 minutes early for registration
+• Bring business cards for networking
+• Dress code: Business casual
+• Free parking is available at the venue
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If you have any questions or need to update your registration, please don't hesitate to contact us at caesarsamulde@gmail.com or +639518023980.
+
+We look forward to seeing you at the event!
+
+Best regards,
+
+Caesar Ian Samulde
+Event Organizer
+Frontend Developer & Graphic Designer
+
+📧 caesarsamulde@gmail.com
+📱 +639518023980
+🌐 Portfolio: https://caesariansamulde.dev
+
+P.S. Follow us on social media for event updates and announcements!`
+            };
+        }
+
+        function showEmailPreview(email) {
+            const rsvp = allRsvps.find(r => r.email === email);
+            if (!rsvp) return;
+
+            if (rsvp.attend !== 'yes') {
+                if (!confirm('This person indicated they are NOT attending. Do you still want to send them an email?')) {
+                    return;
+                }
+            }
+
+            const emailContent = generateEmailContent(rsvp);
+            currentEmailData = {
+                to: rsvp.email,
+                subject: emailContent.subject,
+                body: emailContent.body
+            };
+
+            document.getElementById('emailTo').value = rsvp.email;
+            document.getElementById('emailSubject').value = emailContent.subject;
+            document.getElementById('emailPreview').innerHTML = emailContent.body.replace(/\n/g, '<br>');
+
+            const modal = new bootstrap.Modal(document.getElementById('emailModal'));
+            modal.show();
+        }
+
+        function showBulkEmailModal() {
+            const attending = allRsvps.filter(r => r.attend === 'yes');
+            
+            if (attending.length === 0) {
+                alert('No attendees to send emails to!');
+                return;
+            }
+
+            if (confirm(`This will prepare emails for ${attending.length} attendee(s). Continue?`)) {
+                const firstRsvp = attending[0];
+                const emailContent = generateEmailContent(firstRsvp);
+                
+                currentEmailData = {
+                    to: attending.map(r => r.email).join(', '),
+                    subject: emailContent.subject,
+                    body: emailContent.body,
+                    isBulk: true,
+                    count: attending.length
+                };
+
+                document.getElementById('emailTo').value = `${attending.length} recipient(s)`;
+                document.getElementById('emailSubject').value = emailContent.subject;
+                document.getElementById('emailPreview').innerHTML = 
+                    `<p class="text-info"><strong>Preview for: ${firstRsvp.name}</strong></p>` + 
+                    emailContent.body.replace(/\n/g, '<br>');
+
+                const modal = new bootstrap.Modal(document.getElementById('emailModal'));
+                modal.show();
+            }
+        }
+
+        function copyEmailToClipboard() {
+            const emailText = `To: ${currentEmailData.to}\nSubject: ${currentEmailData.subject}\n\n${currentEmailData.body}`;
+            
+            navigator.clipboard.writeText(emailText).then(() => {
+                alert('Email content copied to clipboard! You can now paste it into your email client.');
+            }).catch(err => {
+                const textarea = document.createElement('textarea');
+                textarea.value = emailText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Email content copied to clipboard!');
+            });
+        }
+
+        function openInEmailClient() {
+            if (currentEmailData.isBulk) {
+                alert('For bulk emails, please use the "Copy to Clipboard" option and paste into your email client with BCC for privacy.');
+                return;
+            }
+
+            const subject = encodeURIComponent(currentEmailData.subject);
+            const body = encodeURIComponent(currentEmailData.body);
+            const mailtoLink = `mailto:${currentEmailData.to}?subject=${subject}&body=${body}`;
+            
+            window.location.href = mailtoLink;
+        }
+
+        // Security - Enhanced Password Protection System
+        (function() {
+            // Stronger password hash (change this!)
+            const ADMIN_HASH = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+            const SESSION_KEY = 'secure_admin_session';
+            const SESSION_DURATION = 3600000; // 1 hour
+            const MAX_ATTEMPTS = 3;
+            const LOCKOUT_TIME = 300000; // 5 minutes
+
+            function checkAuth() {
+                const session = localStorage.getItem(SESSION_KEY);
+                if (session) {
+                    try {
+                        const sessionData = JSON.parse(session);
+                        if (Date.now() - sessionData.timestamp < SESSION_DURATION) {
+                            return true;
+                        } else {
+                            localStorage.removeItem(SESSION_KEY);
+                        }
+                    } catch (e) {
+                        localStorage.removeItem(SESSION_KEY);
+                    }
+                }
+                return false;
+            }
+
+            function isLockedOut() {
+                const lockout = localStorage.getItem('admin_lockout');
+                if (lockout) {
+                    try {
+                        const lockoutData = JSON.parse(lockout);
+                        if (Date.now() - lockoutData.timestamp < LOCKOUT_TIME) {
+                            return true;
+                        } else {
+                            localStorage.removeItem('admin_lockout');
+                            localStorage.removeItem('login_attempts');
+                        }
+                    } catch (e) {
+                        localStorage.removeItem('admin_lockout');
+                        localStorage.removeItem('login_attempts');
+                    }
+                }
+                return false;
+            }
+
+            function recordFailedAttempt() {
+                const attempts = parseInt(localStorage.getItem('login_attempts') || '0');
+                const newAttempts = attempts + 1;
+                
+                if (newAttempts >= MAX_ATTEMPTS) {
+                    localStorage.setItem('admin_lockout', JSON.stringify({
+                        timestamp: Date.now()
+                    }));
+                    localStorage.setItem('login_attempts', '0');
+                    return true;
+                } else {
+                    localStorage.setItem('login_attempts', newAttempts.toString());
+                    return false;
+                }
+            }
+
+            function showLoginPrompt() {
+                if (isLockedOut()) {
+                    document.body.innerHTML = `
+                        <div class="d-flex align-items-center justify-content-center min-vh-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="text-center p-5 bg-white rounded shadow" style="max-width: 400px; width: 90%;">
+                                <i class="fas fa-lock text-danger mb-3" style="font-size: 3rem;"></i>
+                                <h3 class="text-danger mb-3">Access Locked</h3>
+                                <p class="text-muted mb-3">Too many failed attempts. Please wait 5 minutes before trying again.</p>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+                                </div>
+                                <p class="text-muted"><small>Refresh the page after the lockout period.</small></p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const attempts = parseInt(localStorage.getItem('login_attempts') || '0');
+                const remainingAttempts = MAX_ATTEMPTS - attempts;
+
+                document.body.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-center min-vh-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="text-center p-5 bg-white rounded shadow" style="max-width: 400px; width: 90%;">
+                            <i class="fas fa-shield-alt text-primary mb-3" style="font-size: 3rem;"></i>
+                            <h3 class="mb-3">Secure Admin Access</h3>
+                            <p class="text-muted mb-4">Enter the admin password to access the RSVP dashboard.</p>
+                            
+                            ${attempts > 0 ? `<div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Invalid password. ${remainingAttempts} attempt(s) remaining.
+                            </div>` : ''}
+                            
+                            <div class="mb-3">
+                                <input type="password" id="adminPassword" class="form-control" 
+                                       placeholder="Enter admin password" maxlength="50" autocomplete="current-password">
+                            </div>
+                            
+                            <button onclick="verifyPassword()" class="btn btn-primary w-100 mb-3">
+                                <i class="fas fa-unlock me-2"></i>Access Dashboard
+                            </button>
+                            
+                            <div class="text-muted mb-3">
+                                <small><i class="fas fa-info-circle me-1"></i>
+                                Session expires after 1 hour of inactivity</small>
+                            </div>
+                            
+                            <div class="text-muted">
+                                <small><i class="fas fa-lock me-1"></i>
+                                This is a private admin dashboard</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    const passwordField = document.getElementById('adminPassword');
+                    if (passwordField) {
+                        passwordField.focus();
+                        passwordField.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                verifyPassword();
+                            }
+                        });
+                    }
+                }, 100);
+            }
+
+            async function hashPassword(password) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hash = await crypto.subtle.digest('SHA-256', data);
+                return Array.from(new Uint8Array(hash))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+            }
+
+            window.verifyPassword = async function() {
+                const password = document.getElementById('adminPassword')?.value;
+                if (!password) return;
+
+                try {
+                    const hashedInput = await hashPassword(password);
+                    
+                    if (hashedInput === ADMIN_HASH) {
+                        localStorage.setItem(SESSION_KEY, JSON.stringify({
+                            timestamp: Date.now(),
+                            session: Math.random().toString(36).substring(2)
+                        }));
+                        localStorage.removeItem('login_attempts');
+                        localStorage.removeItem('admin_lockout');
+                        location.reload();
+                    } else {
+                        const isLocked = recordFailedAttempt();
+                        showLoginPrompt();
+                    }
+                } catch (error) {
+                    console.error('Authentication error:', error);
+                    alert('Authentication error. Please try again.');
+                }
+            };
+
+            // Initialize security
+            if (!checkAuth()) {
+                showLoginPrompt();
+            } else {
+                // Add logout functionality
+                const headerActions = document.querySelector('.text-md-end');
+                if (headerActions) {
+                    headerActions.innerHTML += `
+                        <button onclick="logout()" class="btn btn-outline-danger ms-2" title="Logout">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </button>
+                    `;
+                }
+
+                // Load data after authentication
+                loadRsvps();
+                
+                // Auto-refresh data every 30 seconds for real-time updates
+                setInterval(async () => {
+                    try {
+                        await loadRsvps();
+                    } catch (error) {
+                        console.error('Auto-refresh failed:', error);
+                    }
+                }, 30000);
+            }
+
+            window.logout = function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem(SESSION_KEY);
+                    location.reload();
+                }
+            };
+
+            // Auto-logout check
+            setInterval(function() {
+                if (!checkAuth()) {
+                    alert('Session expired. Please login again.');
+                    location.reload();
+                }
+            }, 60000);
+        })();
+    </script>
+</body>
+</html>

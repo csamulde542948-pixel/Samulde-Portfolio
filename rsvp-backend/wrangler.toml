@@ -1,0 +1,9 @@
+name = "rsvp-backend"
+main = "src/index.js"
+compatibility_date = "2023-10-30"
+
+# D1 Database binding - we'll update this after creating the database
+[[d1_databases]]
+binding = "DB"
+database_name = "rsvp-database"
+database_id = "6c75975e-8724-4ff8-a9bd-a53c6ecb89d8"

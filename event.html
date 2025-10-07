@@ -850,17 +850,74 @@
                 emailjs.init(config.publicKey);
             }
 
-            function loadRsvps() {
+            // SQLite Backend Configuration
+            const API_BASE_URL = 'https://rsvp-backend.caesarian.workers.dev';
+            
+            async function loadRsvps() {
                 try {
-                    return JSON.parse(localStorage.getItem('rsvps') || '[]');
-                } catch (e) {
-                    return [];
+                    const response = await fetch(`${API_BASE_URL}/api/rsvps`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const result = await response.json();
+                    return result.data || [];
+                } catch (error) {
+                    console.error('Error loading RSVPs from database:', error);
+                    // Fallback to localStorage for backward compatibility
+                    try {
+                        const localData = JSON.parse(localStorage.getItem('rsvps') || '[]');
+                        return localData;
+                    } catch (e) {
+                        console.log('No local data available');
+                        return [];
+                    }
+                }
+            }
+
+            async function saveRsvpToDatabase(rsvpData) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/rsvp`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(rsvpData)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log('RSVP saved to SQLite database successfully');
+                        // Broadcast update for real-time sync
+                        const allRsvps = await loadRsvps();
+                        broadcastRSVPUpdate(allRsvps);
+                        return true;
+                    } else {
+                        throw new Error(result.error || 'Failed to save RSVP');
+                    }
+                } catch (error) {
+                    console.error('Error saving to database:', error);
+                    // Fallback to localStorage
+                    try {
+                        const localRsvps = JSON.parse(localStorage.getItem('rsvps') || '[]');
+                        localRsvps.push(rsvpData);
+                        localStorage.setItem('rsvps', JSON.stringify(localRsvps));
+                        broadcastRSVPUpdate(localRsvps);
+                        return false;
+                    } catch (e) {
+                        console.error('Error with localStorage fallback:', e);
+                        return false;
+                    }
                 }
             }
 
             function saveRsvps(list) {
+                // Legacy function for backward compatibility
                 localStorage.setItem('rsvps', JSON.stringify(list));
-                // Broadcast RSVP data change to admin dashboard
                 broadcastRSVPUpdate(list);
             }
 
@@ -880,7 +937,7 @@
             }
 
             // Listen for data requests from admin dashboard
-            window.addEventListener('message', function(event) {
+            window.addEventListener('message', async function(event) {
                 // Verify origin for security (allow admin subdomain)
                 const allowedOrigins = [
                     'https://admin.caesariansamulde.dev',
@@ -892,7 +949,7 @@
                 
                 if (allowedOrigins.some(origin => event.origin.includes(origin.split('://')[1]))) {
                     if (event.data.type === 'REQUEST_RSVP_DATA') {
-                        const rsvpData = loadRsvps();
+                        const rsvpData = await loadRsvps();
                         event.source.postMessage({
                             type: 'RSVP_DATA_RESPONSE',
                             data: rsvpData,
@@ -998,34 +1055,42 @@
                     return;
                 }
 
-                const rsvps = loadRsvps();
+                // Check for existing RSVP and save to database
+                loadRsvps()
+                    .then((rsvps) => {
+                        // prevent duplicate RSVP by email
+                        const existing = rsvps.find(r => r.email === data.email);
+                        if (existing) {
+                            showAlert('<strong>Already registered!</strong> You have already submitted an RSVP with this email. Thank you!', 'info');
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalButtonText;
+                            return Promise.reject('duplicate');
+                        }
 
-                // prevent duplicate RSVP by email
-                const existing = rsvps.find(r => r.email === data.email);
-                if (existing) {
-                    showAlert('<strong>Already registered!</strong> You have already submitted an RSVP with this email. Thank you!', 'info');
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalButtonText;
-                    return;
-                }
-
-                // Send confirmation email automatically
-                sendConfirmationEmail(data)
+                        // Send confirmation email automatically
+                        return sendConfirmationEmail(data);
+                    })
                     .then((result) => {
                         // Add email status to data
                         data.emailSent = result.status === 'success';
                         data.emailSentAt = result.status === 'success' ? new Date().toISOString() : null;
                         
-                        // Save RSVP with email status
-                        rsvps.push(data);
-                        saveRsvps(rsvps);
-
-                        let message = '<strong>Success!</strong> Your RSVP has been recorded.';
+                        // Save RSVP to SQLite database
+                        return saveRsvpToDatabase(data);
+                    })
+                    .then((databaseSaveSuccess) => {
+                        let message = '<strong>Success!</strong> Your RSVP has been recorded';
+                        
+                        if (databaseSaveSuccess) {
+                            message += ' and saved to our secure database.';
+                        } else {
+                            message += '. (Saved locally - will sync when connection is restored)';
+                        }
                         
                         if (data.attend === 'yes') {
-                            if (result.status === 'success') {
+                            if (data.emailSent) {
                                 message += ' A confirmation email has been sent to <strong>' + data.email + '</strong>. We look forward to seeing you at the event!';
-                            } else if (result.status === 'error') {
+                            } else {
                                 message += ' However, we couldn\'t send the confirmation email. Please check your email address or contact us directly.';
                             }
                         } else {
@@ -1036,6 +1101,10 @@
                         form.reset();
                     })
                     .catch((error) => {
+                        if (error === 'duplicate') {
+                            // Already handled above
+                            return;
+                        }
                         console.error('Error:', error);
                         showAlert('<strong>Error!</strong> Something went wrong. Please try again or contact us directly.', 'danger');
                     })
