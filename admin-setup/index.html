@@ -10,8 +10,72 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -        // Clear all RSVPs - Database operations (read-only admin panel)
+        function clearAllRSVPs() {
+            alert('Bulk delete functionality is disabled for security. This admin panel is read-only.\\n\\nTo manage RSVPs, please contact the system administrator.');
+        }
+        
+        // Manual refresh function
+        async function manualRefresh() {
+            const refreshBtn = document.querySelector('button[onclick="manualRefresh()"]');
+            const originalText = refreshBtn.innerHTML;
+            
+            // Show loading state
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+            
+            try {
+                await loadRsvps();
+                updateLastRefreshTime();
+                
+                // Show success briefly
+                refreshBtn.innerHTML = '<i class="fas fa-check me-1"></i>Refreshed!';
+                refreshBtn.classList.add('btn-success');
+                refreshBtn.classList.remove('btn-info');
+                
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.classList.remove('btn-success');
+                    refreshBtn.classList.add('btn-info');
+                    refreshBtn.disabled = false;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Manual refresh failed:', error);
+                refreshBtn.innerHTML = '<i class="fas fa-times me-1"></i>Failed';
+                refreshBtn.classList.add('btn-danger');
+                refreshBtn.classList.remove('btn-info');
+                
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.classList.remove('btn-danger');
+                    refreshBtn.classList.add('btn-info');
+                    refreshBtn.disabled = false;
+                }, 2000);
+            }
+        }
+        
+        // Update last refresh time display
+        function updateLastRefreshTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            
+            // Update or create last refresh indicator
+            let refreshIndicator = document.getElementById('lastRefreshTime');
+            if (!refreshIndicator) {
+                refreshIndicator = document.createElement('small');
+                refreshIndicator.id = 'lastRefreshTime';
+                refreshIndicator.className = 'text-muted ms-2';
+                
+                // Add to the header area
+                const headerTitle = document.querySelector('.rsvp-table-container h4');
+                if (headerTitle) {
+                    headerTitle.appendChild(refreshIndicator);
+                }
+            }
+            
+            refreshIndicator.innerHTML = `<i class="fas fa-clock me-1"></i>Last updated: ${timeString}`;
+        }    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
@@ -195,6 +259,9 @@
                     <button class="btn btn-success" onclick="showBulkEmailModal()">
                         <i class="fas fa-envelope me-1"></i>Send All Emails
                     </button>
+                    <button class="btn btn-info" onclick="manualRefresh()" title="Refresh RSVP data">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
                     <button class="btn btn-export" onclick="exportToCSV()">
                         <i class="fas fa-download me-1"></i>Export CSV
                     </button>
@@ -321,6 +388,7 @@
                 updateStats();
                 renderTable();
                 showDataSourceInfo();
+                updateLastRefreshTime();
             } catch (e) {
                 console.error('Error loading RSVPs from database:', e);
                 // Fallback to localStorage
@@ -330,6 +398,7 @@
                     updateStats();
                     renderTable();
                     showDataSourceWarning();
+                    updateLastRefreshTime();
                 } catch (localError) {
                     console.error('Error loading from localStorage:', localError);
                     allRsvps = [];
@@ -395,16 +464,16 @@
         // Update statistics
         function updateStats() {
             const total = allRsvps.length;
-            const attending = allRsvps.filter(r => r.attend === 'yes').length;
-            const notAttending = allRsvps.filter(r => r.attend === 'no').length;
+            const attending = allRsvps.filter(r => (r.attend || r.attending) === 'yes').length;
+            const notAttending = allRsvps.filter(r => (r.attend || r.attending) === 'no').length;
             
             // Count RSVPs in last 24 hours
             const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
             const recent = allRsvps.filter(r => new Date(r.timestamp) > oneDayAgo).length;
             
             // Count emails sent (only for attending)
-            const attendingRsvps = allRsvps.filter(r => r.attend === 'yes');
-            const emailsSent = attendingRsvps.filter(r => r.emailSent === true).length;
+            const attendingRsvps = allRsvps.filter(r => (r.attend || r.attending) === 'yes');
+            const emailsSent = attendingRsvps.filter(r => r.emailSent === true || r.email_sent === 1).length;
 
             document.getElementById('totalRsvps').textContent = total;
             document.getElementById('attendingCount').textContent = attending;
@@ -445,13 +514,14 @@
             tbody.innerHTML = filteredRsvps.map((rsvp, index) => {
                 const date = new Date(rsvp.timestamp);
                 const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-                const attendBadge = rsvp.attend === 'yes' 
+                const attending = rsvp.attend || rsvp.attending;
+                const attendBadge = attending === 'yes' 
                     ? '<span class="badge badge-attending">Yes</span>' 
                     : '<span class="badge badge-not-attending">No</span>';
                 
                 // Email status indicator
                 let emailStatus = '-';
-                if (rsvp.attend === 'yes') {
+                if (attending === 'yes') {
                     if (rsvp.emailSent) {
                         const emailDate = rsvp.emailSentAt ? new Date(rsvp.emailSentAt).toLocaleString() : '';
                         emailStatus = `<span class="badge bg-success" title="Email sent at ${emailDate}"><i class="fas fa-check-circle me-1"></i>Sent</span>`;
@@ -518,7 +588,8 @@
                     (rsvp.company && rsvp.company.toLowerCase().includes(searchTerm)) ||
                     (rsvp.role && rsvp.role.toLowerCase().includes(searchTerm));
                 
-                const matchesAttendance = attendanceFilter === 'all' || rsvp.attend === attendanceFilter;
+                const attending = rsvp.attend || rsvp.attending;
+                const matchesAttendance = attendanceFilter === 'all' || attending === attendanceFilter;
                 
                 let matchesEmail = true;
                 if (emailFilter !== 'all') {
@@ -527,7 +598,8 @@
                     } else if (emailFilter === 'failed') {
                         matchesEmail = rsvp.emailSent === false;
                     } else if (emailFilter === 'pending') {
-                        matchesEmail = rsvp.attend === 'yes' && (rsvp.emailSent === undefined || rsvp.emailSent === null);
+                        const attending = rsvp.attend || rsvp.attending;
+                        matchesEmail = attending === 'yes' && (rsvp.emailSent === undefined || rsvp.emailSent === null || rsvp.email_sent === 0);
                     }
                 }
                 
@@ -565,7 +637,7 @@
                         `"${rsvp.email}"`,
                         `"${rsvp.company || ''}"`,
                         `"${rsvp.role || ''}"`,
-                        rsvp.attend === 'yes' ? 'Yes' : 'No',
+                        (rsvp.attend || rsvp.attending) === 'yes' ? 'Yes' : 'No',
                         emailStatus,
                         `"${emailSentAt}"`,
                         `"${(rsvp.message || '').replace(/"/g, '""')}"`,
@@ -665,7 +737,8 @@ P.S. Follow us on social media for event updates and announcements!`
             const rsvp = allRsvps.find(r => r.email === email);
             if (!rsvp) return;
 
-            if (rsvp.attend !== 'yes') {
+            const attending = rsvp.attend || rsvp.attending;
+            if (attending !== 'yes') {
                 if (!confirm('This person indicated they are NOT attending. Do you still want to send them an email?')) {
                     return;
                 }
@@ -930,10 +1003,14 @@ P.S. Follow us on social media for event updates and announcements!`
                 setInterval(async () => {
                     try {
                         await loadRsvps();
+                        console.log('Auto-refresh completed at', new Date().toLocaleTimeString());
                     } catch (error) {
                         console.error('Auto-refresh failed:', error);
                     }
                 }, 30000);
+                
+                // Show last refresh time
+                updateLastRefreshTime();
             }
 
             window.logout = function() {
