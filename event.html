@@ -185,12 +185,176 @@
             box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
         }
         
+        /* Enhanced Responsive Design for Event Page */
+        @media (max-width: 992px) {
+            .event-hero h1 {
+                font-size: 3rem;
+            }
+            
+            .event-hero .lead {
+                font-size: 1.2rem;
+            }
+            
+            .event-info-card {
+                margin-top: -60px;
+                padding: 1.5rem;
+            }
+            
+            .rsvp-form-container {
+                padding: 2rem;
+            }
+        }
+        
         @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .event-hero {
+                padding: 80px 0 60px;
+            }
+            
             .event-hero h1 {
                 font-size: 2.5rem;
+                margin-bottom: 1rem;
+                line-height: 1.2;
             }
+            
             .event-hero .lead {
                 font-size: 1.1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .event-info-card {
+                margin-top: -40px;
+                padding: 1.2rem;
+            }
+            
+            .event-info-item {
+                margin-bottom: 1rem;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .event-info-item i {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .feature-box {
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .feature-box i {
+                font-size: 2.5rem;
+            }
+            
+            .rsvp-section {
+                padding: 60px 0;
+            }
+            
+            .rsvp-form-container {
+                padding: 1.5rem;
+                margin: 0 1rem;
+            }
+            
+            .audio-toggle {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+                top: 80px;
+                right: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+            
+            .event-hero h1 {
+                font-size: 2rem;
+                line-height: 1.3;
+            }
+            
+            .event-hero .lead {
+                font-size: 1rem;
+            }
+            
+            .event-info-card {
+                margin-top: -30px;
+                padding: 1rem;
+            }
+            
+            .event-info-item {
+                margin-bottom: 0.8rem;
+            }
+            
+            .event-info-item i {
+                font-size: 1.5rem;
+            }
+            
+            .feature-box {
+                padding: 1rem;
+            }
+            
+            .feature-box i {
+                font-size: 2rem;
+            }
+            
+            .rsvp-form-container {
+                padding: 1rem;
+            }
+            
+            .rsvp-form-container h2 {
+                font-size: 1.5rem;
+            }
+            
+            .audio-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+                top: 70px;
+                right: 10px;
+            }
+            
+            .glass-button {
+                padding: 0.6rem 1.2rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            .event-hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .event-hero .lead {
+                font-size: 0.95rem;
+            }
+            
+            .container {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+            
+            .rsvp-form-container {
+                margin: 0 0.5rem;
+                padding: 0.8rem;
+            }
+            
+            .audio-toggle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.8rem;
+                top: 60px;
+                right: 5px;
             }
         }
     </style>

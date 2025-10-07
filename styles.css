@@ -119,6 +119,8 @@ html {
     font-weight: 700;
     margin-bottom: 1rem;
     line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .hero-subtitle {
@@ -126,6 +128,8 @@ html {
     font-weight: 400;
     margin-bottom: 1.5rem;
     opacity: 0.9;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .hero-description {
@@ -491,6 +495,50 @@ footer .social-link:hover {
     color: white;
 }
 
+/* Utility classes for responsive design */
+.text-responsive {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.img-responsive {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.container-responsive {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 1rem;
+}
+
+@media (min-width: 576px) {
+    .container-responsive {
+        max-width: 540px;
+        margin: 0 auto;
+    }
+}
+
+@media (min-width: 768px) {
+    .container-responsive {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container-responsive {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container-responsive {
+        max-width: 1140px;
+    }
+}
+
 /* Animations */
 @keyframes fadeInUp {
     from {
@@ -514,23 +562,116 @@ footer .social-link:hover {
     }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .navbar-logo {
-        height: 60px;
-        max-width: 150px;
-    }
-    
+/* Responsive Design */
+/* Large tablets and small desktops */
+@media (max-width: 1200px) {
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 3rem;
     }
     
     .hero-subtitle {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
+    }
+    
+    .profile-img img {
+        width: 400px;
+        height: 400px;
+    }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+    .navbar-logo {
+        height: 60px;
+        max-width: 140px;
+    }
+    
+    .hero-section {
+        padding: 80px 0 40px;
+        min-height: auto;
+    }
+    
+    .hero-content {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .hero-title {
+        font-size: 2.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .profile-img img {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .profile-card {
+        margin-top: 2rem;
     }
     
     .section-title {
-        font-size: 2rem;
+        font-size: 2.2rem;
+    }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+    .navbar {
+        min-height: 70px;
+    }
+    
+    .navbar-logo {
+        height: 50px;
+        max-width: 120px;
+    }
+    
+    .hero-section {
+        padding: 70px 0 30px;
+    }
+    
+    .hero-content {
+        padding: 0 1rem;
+    }
+    
+    .hero-title {
+        font-size: 2.2rem;
+        line-height: 1.3;
+        margin-bottom: 0.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .hero-description {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .hero-buttons .btn {
+        width: 100%;
+        margin: 0;
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95rem;
     }
     
     .profile-img img {
@@ -538,36 +679,212 @@ footer .social-link:hover {
         height: 250px;
     }
     
+    .profile-card {
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .profile-info h4 {
+        font-size: 1.3rem;
+    }
+    
+    .profile-info p {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+    }
+    
     .contact-form {
         padding: 2rem;
     }
     
-    .hero-buttons .btn {
-        display: block;
-        width: 100%;
-        margin-bottom: 1rem;
+    .social-links {
+        margin-top: 1.5rem;
+    }
+    
+    .social-link {
+        width: 45px;
+        height: 45px;
+        margin: 0 0.4rem;
     }
 }
 
+/* Mobile phones */
 @media (max-width: 576px) {
+    .navbar {
+        min-height: 60px;
+        padding: 0.25rem 0;
+    }
+    
     .navbar-logo {
-        height: 50px;
-        max-width: 120px;
+        height: 40px;
+        max-width: 100px;
+    }
+    
+    .hero-section {
+        padding: 60px 0 20px;
+    }
+    
+    .hero-content {
+        padding: 0 0.5rem;
     }
     
     .hero-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        line-height: 1.2;
+        margin-bottom: 0.6rem;
+        font-weight: 700;
     }
     
     .hero-subtitle {
         font-size: 1rem;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+    
+    .hero-description {
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+        line-height: 1.5;
+    }
+    
+    .hero-buttons {
+        gap: 0.6rem;
+    }
+    
+    .hero-buttons .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+        border-radius: 25px;
+    }
+    
+    .profile-img img {
+        width: 200px;
+        height: 200px;
     }
     
     .profile-card {
-        padding: 1.5rem;
+        padding: 1.2rem;
+        margin-top: 1rem;
+        border-radius: 15px;
+    }
+    
+    .profile-info h4 {
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .profile-info p {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.95rem;
     }
     
     .contact-form {
+        padding: 1.2rem;
+        margin: 1rem;
+    }
+    
+    .social-links {
+        margin-top: 1rem;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        margin: 0 0.3rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Container padding adjustments for mobile */
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    /* About section mobile fixes */
+    .about-content h3 {
+        font-size: 1.6rem;
+    }
+    
+    .about-content p {
+        font-size: 1rem;
+    }
+    
+    /* Skills section mobile fixes */
+    .skills-section {
         padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .skills-section h4 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 375px) {
+    .hero-title {
+        font-size: 1.6rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .hero-description {
+        font-size: 0.85rem;
+    }
+    
+    .profile-img img {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .profile-card {
+        padding: 1rem;
+    }
+    
+    .hero-buttons .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
+
+/* Landscape orientation fixes for mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero-section {
+        padding: 40px 0 20px;
+    }
+    
+    .hero-content {
+        margin-bottom: 1rem;
+    }
+    
+    .profile-card {
+        margin-top: 1rem;
+    }
+    
+    .profile-img img {
+        width: 150px;
+        height: 150px;
     }
 }
