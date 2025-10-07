@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://caesariansamulde.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin.html
+Disallow: /.git/
+Disallow: /js/
+Disallow: /css/
+
+# Allow important pages
+Allow: /index.html
+Allow: /event.html
+Allow: /img/
+Allow: /styles.css
