@@ -640,6 +640,68 @@
             }, 5000);
         }
 
+        // Manual refresh function
+        async function manualRefresh() {
+            const refreshBtn = document.querySelector('button[onclick="manualRefresh()"]');
+            const originalText = refreshBtn.innerHTML;
+            
+            // Show loading state
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+            
+            try {
+                await loadRsvps();
+                updateLastRefreshTime();
+                
+                // Show success briefly
+                refreshBtn.innerHTML = '<i class="fas fa-check me-1"></i>Refreshed!';
+                refreshBtn.classList.add('btn-success');
+                refreshBtn.classList.remove('btn-info');
+                
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.classList.remove('btn-success');
+                    refreshBtn.classList.add('btn-info');
+                    refreshBtn.disabled = false;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Manual refresh failed:', error);
+                refreshBtn.innerHTML = '<i class="fas fa-times me-1"></i>Failed';
+                refreshBtn.classList.add('btn-danger');
+                refreshBtn.classList.remove('btn-info');
+                
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.classList.remove('btn-danger');
+                    refreshBtn.classList.add('btn-info');
+                    refreshBtn.disabled = false;
+                }, 2000);
+            }
+        }
+        
+        // Update last refresh time display
+        function updateLastRefreshTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            
+            // Update or create last refresh indicator
+            let refreshIndicator = document.getElementById('lastRefreshTime');
+            if (!refreshIndicator) {
+                refreshIndicator = document.createElement('small');
+                refreshIndicator.id = 'lastRefreshTime';
+                refreshIndicator.className = 'text-muted ms-2';
+                
+                // Add to the header area
+                const headerTitle = document.querySelector('.rsvp-table-container h4');
+                if (headerTitle) {
+                    headerTitle.appendChild(refreshIndicator);
+                }
+            }
+            
+            refreshIndicator.innerHTML = `<i class="fas fa-clock me-1"></i>Last updated: ${timeString}`;
+        }
+
         // Export to CSV
         function exportToCSV() {
             if (allRsvps.length === 0) {
