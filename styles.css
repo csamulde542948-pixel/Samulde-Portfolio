@@ -1424,13 +1424,80 @@ footer .social-link:hover {
     transform: translateY(-8px);
 }
 
+/* Project Card with Image Styles */
+.project-card-with-img {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid #e0e0e0 !important;
+}
+
+.project-card-with-img:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
+    border-color: var(--primary) !important;
+}
+
+.project-thumbnail {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.project-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.project-card-with-img:hover .project-thumbnail img {
+    transform: scale(1.1);
+}
+
+.project-info {
+    background: white;
+}
+
+.project-info h5 {
+    color: #333;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    transition: color 0.3s ease;
+}
+
+.project-card-with-img:hover .project-info h5 {
+    color: var(--primary);
+}
+
+.project-info small {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
 /* Responsive adjustments for projects */
 @media (max-width: 768px) {
-    .project-card h5 {
+    .project-card h5,
+    .project-info h5 {
         font-size: 1rem;
     }
     
     .project-card .fas {
         font-size: 1.25rem !important;
+    }
+    
+    .project-thumbnail {
+        height: 160px;
+    }
+}
+
+@media (max-width: 576px) {
+    .project-thumbnail {
+        height: 140px;
+    }
+    
+    .project-info {
+        padding: 0.75rem !important;
     }
 }
