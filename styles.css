@@ -1372,3 +1372,65 @@ footer .social-link:hover {
         padding-right: 2rem;
     }
 }
+
+/* My Projects Section Styles */
+.projects-list {
+    margin-top: 1rem;
+}
+
+.project-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e0e0e0 !important;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+    border-color: var(--primary) !important;
+}
+
+.project-link {
+    color: inherit;
+}
+
+.project-link:hover {
+    text-decoration: none;
+}
+
+.project-card h5 {
+    color: #333;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.project-card:hover h5 {
+    color: var(--primary);
+}
+
+.project-card .fas {
+    transition: transform 0.3s ease;
+}
+
+.project-card:hover .fas {
+    transform: scale(1.1);
+}
+
+.hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+}
+
+/* Responsive adjustments for projects */
+@media (max-width: 768px) {
+    .project-card h5 {
+        font-size: 1rem;
+    }
+    
+    .project-card .fas {
+        font-size: 1.25rem !important;
+    }
+}
